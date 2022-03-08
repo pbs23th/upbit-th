@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap-theme.min.css">
+    <script src="//code.jquery.com/jquery-1.12.0.min.js"></script>
+    <script src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"
+            integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS"
+            crossorigin="anonymous"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <title>Title</title>
+</head>
+<body>
+
+<table class="table">
+    <thead>
+    <tr>
+        <th scope="col">#</th>
+        <th scope="col">매수심볼</th>
+        <th scope="col">매수가격</th>
+        <th scope="col">매수가격바트화</th>
+        <th scope="col">매도 심볼</th>
+        <th scope="col">매도가격</th>
+        <th scope="col">매도가격 바트화</th>
+        <th scope="col">시세차이%</th>
+    </tr>
+    </thead>
+    <tbody class='tbody'>
+    <tr>
+        <th scope="row" rowspan="2">1</th>
+        <td rowspan="2">THB-BTC</td>
+        <td rowspan="2">{{ data_1['bid_price'] }}</td>
+        <td rowspan="2">{{ '{0:,}'.format(data_1['bid_thb']) }}</td>
+        <td>USDT-BTC(태국)</td>
+        <td>{{ data_2['ask_price'] }}</td>
+        <td>{{ '{0:,}'.format(data_2['ask_thb']) }}</td>
+        <td>{{ '{0:.2f}'.format((data_1['bid_thb'] - data_2['ask_thb'])/ data_1['ask_thb']*100) }}%</td>
+    </tr>
+    <tr>
+        <td>USDT-BTC(바이낸스)</td>
+        <td>{{ data_4['ask_price'] }}</td>
+        <td>{{ '{0:,}'.format(data_4['ask_thb']) }}</td>
+        <td>{{ '{0:.2f}'.format((data_1['bid_thb'] - data_4['ask_thb'])/ data_1['ask_thb']*100) }}%</td>
+    </tr>
+    <tr>
+        <th scope="row" rowspan="2">2</th>
+        <td rowspan="2">USDT-BTC(태국)</td>
+        <td rowspan="2">{{ data_2['bid_price'] }}</td>
+        <td rowspan="2">{{ '{0:,}'.format(data_2['bid_thb']) }}</td>
+        <td>THB-BTC</td>
+        <td>{{ data_1['ask_price'] }}</td>
+        <td>{{ '{0:,}'.format(data_1['ask_thb']) }}</td>
+        <td>{{ '{0:.2f}'.format((data_2['bid_thb'] - data_1['ask_thb'])/ data_2['ask_thb']*100) }}%</td>
+    </tr>
+    <tr>
+        <td>USDT-BTC(바이낸스)</td>
+        <td>{{ data_4['ask_price'] }}</td>
+        <td>{{ '{0:,}'.format(data_4['ask_thb']) }}</td>
+        <td>{{ '{0:.2f}'.format((data_2['bid_thb'] - data_4['ask_thb'])/ data_2['ask_thb']*100) }}%</td>
+    </tr>
+    <tr>
+        <th scope="row" rowspan="2">3</th>
+        <td rowspan="2">USDT-BTC(바이낸스)</td>
+        <td rowspan="2">{{ data_4['bid_price'] }}</td>
+        <td rowspan="2">{{ '{0:,}'.format(data_4['bid_thb']) }}</td>
+        <td>THB-BTC</td>
+        <td>{{ data_1['ask_price'] }}</td>
+        <td>{{ '{0:,}'.format(data_1['ask_thb']) }}</td>
+        <td>{{ '{0:.2f}'.format((data_4['bid_thb'] - data_1['ask_thb'])/ data_4['ask_thb']*100) }}%</td>
+    </tr>
+    <tr>
+        <td>USDT-BTC(태국)</td>
+        <td>{{ data_2['ask_price'] }}</td>
+        <td>{{ '{0:,}'.format(data_2['ask_thb']) }}</td>
+        <td>{{ '{0:.2f}'.format((data_4['bid_thb'] - data_2['ask_thb'])/ data_4['ask_thb']*100) }}%</td>
+    </tr>
+
+
+    </tbody>
+</table>
+<script>
+    $(document).ready(setInterval(function () {
+            f()
+        }, 1000)
+    );
+
+    function f() {
+        $.ajax({
+            url: "/pricedata",
+            type: "GET",
+            dataType: "json",
+            success: function (result) {
+                if (result) {
+                    removeTable();
+                    createNewTable(result);
+                }
+            },
+            error: function (err) {
+                console.log(err)
+            }
+        })
+
+    }
+
+    function removeTable() {
+        // 원래 테이블 제거
+        $(".tbody").remove();
+        // ajax로 추가했던 테이블 제거
+        $(".new-tbody").remove();
+
+    }
+
+    function createNewTable(data) {
+        data2 = Object.values(data)
+        $newTbody = $("<tbody class='new-tbody'></tbody>")
+        $(".table").append($newTbody)
+
+            let $cellsOfRow = $("<tr>" +
+                "<th scope='row' rowspan='2'>" + 1 + "</th>" +
+                "<td rowspan='2'>" + "THB-BTC" + "</td>" +
+                "<td rowspan='2'>" + data2[0]['bid_price'] + "</td>" +
+                "<td rowspan='2'>" + data2[0]['bid_thb'] + "</td>" +
+                "<td>" + "USDT-BTC(태국)" + "</td>" +
+                "<td>" + data[1]['ask_price'] + "</td>" +
+                "<td>" + data[1]['ask_thb'] + "</td>" +
+                "<td>" + parseFloat((data[0]['bid_thb']-data[1]['ask_thb'])/data[0]['ask_thb']*100).toFixed(2) + "%" +"</td>" +
+                "</tr>");
+            $newTbody.append($cellsOfRow);
+    }
+</script>
+</body>
+</html>
